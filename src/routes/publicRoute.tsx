@@ -7,6 +7,7 @@ interface Props extends RouteProps {
   component: any;
 }
 
+//if auth then rediect to main page
 const PublicRoute: FC<Props> = ({ component: Component, ...rest }) => {
   const { isAuthenticated } = useSelector(authSelector.authentication);
 

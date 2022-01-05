@@ -7,6 +7,7 @@ interface Props extends RouteProps {
   component: any;
 }
 
+//only allow if auth else redirect to login
 const PrivateRoute: FC<Props> = ({ component: Component, ...rest }) => {
   const { isAuthenticated } = useSelector(authSelector.authentication);
   console.log('PRIVATE ROUTE ' + isAuthenticated);

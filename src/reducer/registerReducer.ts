@@ -65,6 +65,7 @@ export default (state: RegisterState = initialState, action: IndexedObject): Reg
 
 const apiUrl = 'api/register';
 
+//dispatch create action
 export const createEntity: ICrudPutAction<IRegisterModel> = (entity) => async (dispatch) => {
   try {
     return await dispatch({

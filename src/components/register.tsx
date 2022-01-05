@@ -14,12 +14,15 @@ export interface IRegisterProps
     RouteComponentProps<IndexedObject> {}
 
 const RegisterPage: React.FC<IRegisterProps> = (props) => {
+  //state
   const [state, setState] = useState({
     fullName: '',
     email: '',
     password: '',
     errors: [] as string[],
   });
+
+  //get props
   const { updating, updateSuccess, showModel } = props;
   const history = useHistory();
 
@@ -31,6 +34,7 @@ const RegisterPage: React.FC<IRegisterProps> = (props) => {
     props.reset();
   };
 
+  //if register success then redirect to login page
   const handleOk = () => {
     close();
     if (updateSuccess) {
@@ -42,6 +46,7 @@ const RegisterPage: React.FC<IRegisterProps> = (props) => {
     setState({ ...state, [event.target.name]: event.target.value });
   };
 
+  //submit register form event
   const saveEntity = (event: IndexedObject) => {
     event.preventDefault();
     //VALIDATE
@@ -60,7 +65,7 @@ const RegisterPage: React.FC<IRegisterProps> = (props) => {
       errors.push('email');
     }
 
-    //email
+    //password
     if (state.password.length <= 0 || state.password.length >= 20) {
       errors.push('password');
     }
@@ -90,6 +95,7 @@ const RegisterPage: React.FC<IRegisterProps> = (props) => {
   );
 };
 
+//get register state from redux store
 const mapStateToProps = ({ register }: AppState) => ({
   updating: register.updating,
   updateSuccess: register.updateSuccess,

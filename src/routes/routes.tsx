@@ -8,12 +8,14 @@ import Home from '../components/home';
 import RegisterPage from '../components/register';
 import LoginPage from '../components/login';
 import WelcomePage from '../components/welcome';
+import AboutPage from '../components/about';
 
 const Routes: React.FC<IndexedObject> = () => (
   <Switch>
     <Route exact path="/" component={WelcomePage} />
     <PublicRoute exact path="/login" component={LoginPage} />
     <PublicRoute exact path="/register" component={RegisterPage} />
+    <PublicRoute exact path="/about" component={AboutPage} />
     <PrivateRoute exact path="/home" component={Home} />
     <Route component={NoMatch} />
   </Switch>

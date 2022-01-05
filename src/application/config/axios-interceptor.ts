@@ -6,6 +6,7 @@ const TIMEOUT = 1 * 60 * 1000;
 axios.defaults.timeout = TIMEOUT;
 axios.defaults.baseURL = process.env.REACT_APP_BASE_API_URL;
 
+//set up interceptor for axios request and response
 const setupAxiosInterceptors = (onUnauthenticated: Func) => {
   const onRequestSuccess = (config: AxiosRequestConfig) => {
     const token = ''; //.get('authenticationToken');

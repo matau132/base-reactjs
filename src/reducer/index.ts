@@ -23,6 +23,7 @@ const rootReducer = combineReducers<AppState>({
   language: langReducer,
 });
 
+//load redux state in local storage if available
 const loadState = () => {
   try {
     const serializedState = localStorage.getItem('state');
@@ -35,6 +36,7 @@ const loadState = () => {
   }
 };
 
+//save redux state in local storage
 const saveState = (state: AppState) => {
   try {
     const serializedState = JSON.stringify(state);
@@ -44,6 +46,7 @@ const saveState = (state: AppState) => {
   }
 };
 
+//get redux state in local storage, return undefined if unavailable
 const peristedState = loadState();
 
 const initialize = (initialState?: AppState, middlewares = []): Store =>
@@ -51,6 +54,7 @@ const initialize = (initialState?: AppState, middlewares = []): Store =>
 
 const store = initialize(peristedState);
 
+//save redux state to local storage each time store update
 store.subscribe(() => {
   saveState(store.getState());
 });
