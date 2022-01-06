@@ -1,18 +1,19 @@
+import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import * as React from 'react';
+import { AxiosProvider } from 'react-axios-helpers';
+import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
+import { BrowserRouter } from 'react-router-dom';
+import setupAxiosInterceptors from './application/config/axios-interceptor';
 import './index.css';
 import store from './reducer';
-import axios from 'axios';
-import ReactDOM from 'react-dom';
-import { AxiosProvider } from 'react-axios-helpers';
 import reportWebVitals from './reportWebVitals';
 import RoutedApp from './routes/routes';
-import setupAxiosInterceptors from './application/config/axios-interceptor';
 import { returnVoidDummyFn } from './type/types';
-import { BrowserRouter } from 'react-router-dom';
 
 const customAxiosInstance = axios.create();
-setupAxiosInterceptors(() => returnVoidDummyFn());
+setupAxiosInterceptors(() => returnVoidDummyFn);
 
 const rootElement = document.getElementById('root');
 ReactDOM.render(

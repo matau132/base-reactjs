@@ -26,6 +26,8 @@ export type RegisterState = Readonly<typeof initialState>;
 // Reducer
 
 export default (state: RegisterState = initialState, action: IndexedObject): RegisterState => {
+  console.log('in reducer', action);
+
   switch (action.type) {
     case REQUEST(ACTION_TYPES.CREATE_USER):
       return {
@@ -63,7 +65,8 @@ export default (state: RegisterState = initialState, action: IndexedObject): Reg
   }
 };
 
-const apiUrl = 'api/register';
+//api path
+const apiUrl = 'users';
 
 //dispatch create action
 export const createEntity: ICrudPutAction<IRegisterModel> = (entity) => async (dispatch) => {

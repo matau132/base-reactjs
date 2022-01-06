@@ -1,12 +1,13 @@
 import * as React from 'react';
-import { IndexedObject } from '../utils/type';
+import { useState, useCallback } from 'react';
+import { Button, Col, Container, Form } from 'react-bootstrap';
+import { connect } from 'react-redux';
 import { RouteComponentProps, useHistory } from 'react-router-dom';
-import { connect, useSelector } from 'react-redux';
-import { createEntity, reset } from '../reducer/registerReducer';
-import { AppState } from '../reducer';
-import { omit } from '../utils/object';
 import { IRegisterModel } from '../models/register_model';
-import { useState } from 'react';
+import { AppState } from '../reducer';
+import { createEntity, reset } from '../reducer/registerReducer';
+import { omit } from '../utils/object';
+import { IndexedObject } from '../utils/type';
 
 export interface IRegisterProps
   extends StateProps,
@@ -19,8 +20,10 @@ const RegisterPage: React.FC<IRegisterProps> = (props) => {
     fullName: '',
     email: '',
     password: '',
+    confirmPassword: '',
     errors: [] as string[],
   });
+  const [validated, setValidated] = useState(false);
 
   //get props
   const { updating, updateSuccess, showModel } = props;
@@ -30,67 +33,144 @@ const RegisterPage: React.FC<IRegisterProps> = (props) => {
     return state.errors.indexOf(key) !== -1;
   };
 
-  const close = () => {
+  const close = useCallback(() => {
     props.reset();
-  };
+  }, [props]);
 
   //if register success then redirect to login page
-  const handleOk = () => {
+  const handleOk = useCallback(() => {
     close();
     if (updateSuccess) {
       history.push('/login');
     }
-  };
+  }, [close]);
 
-  const changeHandler = (event: IndexedObject) => {
-    setState({ ...state, [event.target.name]: event.target.value });
-  };
+  const changeHandler = useCallback(
+    (event: IndexedObject) => {
+      setState((state) => ({ ...state, [event.target.name]: event.target.value }));
+    },
+    [state],
+  );
 
   //submit register form event
-  const saveEntity = (event: IndexedObject) => {
-    event.preventDefault();
-    //VALIDATE
-    const errors: string[] = [];
+  const handleSubmit = useCallback(
+    (event: IndexedObject) => {
+      event.preventDefault();
+      setValidated(true);
+      //VALIDATE
+      const errors: string[] = [];
 
-    //firstname
-    if (state.fullName === '') {
-      errors.push('fullName');
-    }
+      //firstname
+      if (state.fullName === '') {
+        errors.push('fullName');
+      }
 
-    //email
-    const expression = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
-    const validEmail = expression.test(String(state.email).toLowerCase());
+      //email
+      const expression = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+      const validEmail = expression.test(String(state.email).toLowerCase());
 
-    if (!validEmail) {
-      errors.push('email');
-    }
+      if (!validEmail) {
+        errors.push('email');
+      }
 
-    //password
-    if (state.password.length <= 0 || state.password.length >= 20) {
-      errors.push('password');
-    }
+      //password
+      if (state.password.length <= 0 || state.password.length >= 20) {
+        errors.push('password');
+      }
 
-    setState({
-      ...state,
-      errors: errors,
-    });
+      //confirm password
+      if (state.confirmPassword.length <= 0 || state.confirmPassword.length >= 20) {
+        errors.push('confirm password');
+      }
 
-    if (errors.length > 0) {
-      return false;
-    } else {
-      const entity = {
-        ...omit('errors', state),
-        login: state.email,
-      } as IRegisterModel;
-      props.createEntity(entity);
-    }
-  };
+      setState({
+        ...state,
+        errors: errors,
+      });
+
+      if (errors.length > 0) {
+        return false;
+      } else {
+        const entity = {
+          ...omit('errors', state),
+          login: state.email,
+        } as IRegisterModel;
+        props.createEntity(entity);
+      }
+    },
+    [state],
+  );
 
   return (
     <div className="Article">
-      <div>
-        <h1>Register Page</h1>
-      </div>
+      <Container>
+        <h1>Register</h1>
+        <Form noValidate validated={validated} onSubmit={handleSubmit} className="mt-5">
+          <Form.Group as={Col} md="6" controlId="fullName">
+            <Form.Label>Full Name</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Full Name"
+              required
+              onChange={changeHandler}
+              value={state.fullName}
+              name="fullName"
+            />
+            <Form.Control.Feedback type="invalid">Please provide your name.</Form.Control.Feedback>
+          </Form.Group>
+          <Form.Group as={Col} md="6" controlId="email">
+            <Form.Label>Email</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Email"
+              required
+              onChange={changeHandler}
+              value={state.email}
+              name="email"
+            />
+            <Form.Control.Feedback type="invalid">
+              Please provide a valid email.
+            </Form.Control.Feedback>
+          </Form.Group>
+          <Form.Group as={Col} md="6" controlId="password">
+            <Form.Label>Password</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder="Password"
+              required
+              onChange={changeHandler}
+              value={state.password}
+              name="password"
+            />
+            <Form.Control.Feedback type="invalid">
+              Please provide a valid password.
+            </Form.Control.Feedback>
+          </Form.Group>
+          <Form.Group as={Col} md="6" controlId="confirmPassword">
+            <Form.Label>Confirm Password</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder="Confirm Password"
+              required
+              onChange={changeHandler}
+              value={state.confirmPassword}
+              name="confirmPassword"
+            />
+            <Form.Control.Feedback type="invalid">
+              Please provide a valid password.
+            </Form.Control.Feedback>
+          </Form.Group>
+          <Form.Group className="my-3">
+            <Form.Check
+              required
+              label="Agree to terms and conditions"
+              feedback="You must agree before submitting."
+              feedbackType="invalid"
+            />
+          </Form.Group>
+          <Button type="submit">Submit form</Button>
+        </Form>
+      </Container>
     </div>
   );
 };
