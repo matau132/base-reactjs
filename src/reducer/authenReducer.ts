@@ -4,6 +4,8 @@ import { IndexedObject } from '../utils/type';
 import { FAILURE, REQUEST, SUCCESS } from './action-type.util';
 import { AUTH_TOKEN_KEY } from '../shared/constant/constant';
 import { IAccount } from '../models/account_model';
+import { ICrudPutAction } from '../type/redux-action';
+import { ILogin } from '../models/login_model';
 
 export const ACTION_TYPES = {
   LOGIN: 'authentication/LOGIN',
@@ -37,6 +39,10 @@ export default (
 ): AuthenticationState => {
   switch (action.type) {
     case REQUEST(ACTION_TYPES.LOGIN):
+      return {
+        ...state,
+        loading: true,
+      };
     case REQUEST(ACTION_TYPES.GET_SESSION):
       return {
         ...state,
@@ -66,6 +72,7 @@ export default (
         showModalLogin: false,
         loginSuccess: true,
         //TODO: Hard code
+        account: action.payload.payload,
         isAuthenticated: true,
       };
     case ACTION_TYPES.LOGOUT:
@@ -116,6 +123,35 @@ export const clearAuthToken = () => {
   }
   if (sessionStorage.getItem(AUTH_TOKEN_KEY)) {
     sessionStorage.removeItem(AUTH_TOKEN_KEY);
+  }
+};
+
+export const login: ICrudPutAction<ILogin> = (entity) => async (dispatch: any) => {
+  const fakeLogin = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const localAccount: string | null = localStorage.getItem('account');
+      if (localAccount) {
+        const account: ILogin = JSON.parse(localAccount);
+        if (entity?.login === account.login && entity?.password === account.password) {
+          resolve({
+            payload: account,
+          });
+        } else {
+          reject({
+            payload: 'Invalid Account',
+          });
+        }
+      }
+    }, 300);
+  });
+
+  try {
+    return await dispatch({
+      type: ACTION_TYPES.LOGIN,
+      payload: fakeLogin,
+    });
+  } catch (e) {
+    return null;
   }
 };
 

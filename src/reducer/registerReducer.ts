@@ -26,8 +26,6 @@ export type RegisterState = Readonly<typeof initialState>;
 // Reducer
 
 export default (state: RegisterState = initialState, action: IndexedObject): RegisterState => {
-  console.log('in reducer', action);
-
   switch (action.type) {
     case REQUEST(ACTION_TYPES.CREATE_USER):
       return {
@@ -73,7 +71,7 @@ export const createEntity: ICrudPutAction<IRegisterModel> = (entity) => async (d
   try {
     return await dispatch({
       type: ACTION_TYPES.CREATE_USER,
-      payload: axios.post(apiUrl, entity),
+      payload: axios.post(`https://jsonplaceholder.typicode.com/${apiUrl}`, entity),
     });
   } catch (e) {
     return null;

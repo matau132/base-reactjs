@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { Button, Col, Container, Form } from 'react-bootstrap';
 import { connect } from 'react-redux';
-import { RouteComponentProps, useHistory } from 'react-router-dom';
+import { NavLink, RouteComponentProps, useHistory } from 'react-router-dom';
 import { IRegisterModel } from '../models/register_model';
 import { AppState } from '../reducer';
 import { createEntity, reset } from '../reducer/registerReducer';
@@ -38,12 +38,19 @@ const RegisterPage: React.FC<IRegisterProps> = (props) => {
   }, [props]);
 
   //if register success then redirect to login page
-  const handleOk = useCallback(() => {
-    close();
-    if (updateSuccess) {
-      history.push('/login');
-    }
-  }, [close]);
+  const handleOk = useCallback(
+    (responseRegister) => {
+      if (updateSuccess) {
+        localStorage.setItem(
+          'account',
+          JSON.stringify(omit('confirmPassword', responseRegister.action.payload.data)),
+        );
+        history.push('/login');
+      }
+      // close();
+    },
+    [close, updateSuccess],
+  );
 
   const changeHandler = useCallback(
     (event: IndexedObject) => {
@@ -54,7 +61,7 @@ const RegisterPage: React.FC<IRegisterProps> = (props) => {
 
   //submit register form event
   const handleSubmit = useCallback(
-    (event: IndexedObject) => {
+    async (event: IndexedObject) => {
       event.preventDefault();
       setValidated(true);
       //VALIDATE
@@ -95,7 +102,8 @@ const RegisterPage: React.FC<IRegisterProps> = (props) => {
           ...omit('errors', state),
           login: state.email,
         } as IRegisterModel;
-        props.createEntity(entity);
+        const responseRegister = await props.createEntity(entity);
+        handleOk(responseRegister);
       }
     },
     [state],
@@ -103,9 +111,9 @@ const RegisterPage: React.FC<IRegisterProps> = (props) => {
 
   return (
     <div className="Article">
-      <Container>
+      <Container className="mt-5">
         <h1>Register</h1>
-        <Form noValidate validated={validated} onSubmit={handleSubmit} className="mt-5">
+        <Form noValidate validated={validated} onSubmit={handleSubmit} className="my-5">
           <Form.Group as={Col} md="6" controlId="fullName">
             <Form.Label>Full Name</Form.Label>
             <Form.Control
@@ -170,6 +178,7 @@ const RegisterPage: React.FC<IRegisterProps> = (props) => {
           </Form.Group>
           <Button type="submit">Submit form</Button>
         </Form>
+        <NavLink to="/login">Login</NavLink>
       </Container>
     </div>
   );
