@@ -27,7 +27,7 @@ const UpdatePage: React.FC<IUpdateProps> = (props) => {
   const [validated, setValidated] = useState(false);
 
   //get props
-  const { updating, updateSuccess, showModel, entity } = props;
+  const { updating, updateSuccess, showModel, entityUpdate, entityAuthen } = props;
   const history = useHistory();
 
   const hasError = (key: string) => {
@@ -42,10 +42,10 @@ const UpdatePage: React.FC<IUpdateProps> = (props) => {
   const handleOk = useCallback(async () => {
     if (updateSuccess) {
       close();
-      localStorage.setItem('account', JSON.stringify(entity));
+      localStorage.setItem('account', JSON.stringify(entityUpdate));
       await props.login({
-        login: entity.email,
-        password: entity.password,
+        login: entityUpdate.email,
+        password: entityUpdate.password,
       });
       history.push('/home');
     }
@@ -108,17 +108,15 @@ const UpdatePage: React.FC<IUpdateProps> = (props) => {
   );
 
   useEffect(() => {
-    const localAccount = localStorage.getItem('account');
-    if (localAccount) {
-      const account = JSON.parse(localAccount);
-      setState((state) => ({
-        ...state,
-        fullName: account.fullName,
-        email: account.email,
-        password: account.password,
-        confirmPassword: account.password,
-      }));
-    }
+    const account = entityAuthen as IndexedObject;
+
+    setState((state) => ({
+      ...state,
+      fullName: account.fullName,
+      email: account.email,
+      password: account.password,
+      confirmPassword: account.password,
+    }));
   }, []);
 
   useEffect(() => {
@@ -195,11 +193,12 @@ const UpdatePage: React.FC<IUpdateProps> = (props) => {
 };
 
 //get update state from redux store
-const mapStateToProps = ({ update }: AppState) => ({
-  updating: update.updating,
-  updateSuccess: update.updateSuccess,
-  showModel: update.showModel,
-  entity: update.entity,
+const mapStateToProps = (state: AppState) => ({
+  updating: state.update.updating,
+  updateSuccess: state.update.updateSuccess,
+  showModel: state.update.showModel,
+  entityUpdate: state.update.entity,
+  entityAuthen: state.authentication.account,
 });
 
 const mapDispatchToProps = { updateEntity, reset, login };

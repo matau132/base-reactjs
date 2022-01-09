@@ -7,6 +7,7 @@ import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import setupAxiosInterceptors from './application/config/axios-interceptor';
 import Header from './components/shared/header';
+import Spinner from './components/shared/spinner';
 import './index.css';
 import store from './reducer';
 import reportWebVitals from './reportWebVitals';
@@ -22,6 +23,7 @@ ReactDOM.render(
     <AxiosProvider instance={customAxiosInstance}>
       <BrowserRouter>
         <Header />
+        <Spinner />
         <RoutedApp />
       </BrowserRouter>
     </AxiosProvider>

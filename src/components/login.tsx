@@ -37,12 +37,35 @@ const LoginPage: React.FC<ILoginProps> = (props) => {
       event.preventDefault();
       setValidated(true);
 
-      props.login(omit('errors', state));
+      //validate
+      const errors: string[] = [];
+
+      //login name
+      if (state.login === '') {
+        errors.push('login');
+      }
+
+      //password
+      if (state.password.length <= 0 || state.password.length >= 20) {
+        errors.push('password');
+      }
+
+      setState({
+        ...state,
+        errors: errors,
+      });
+
+      if (errors.length > 0) {
+        return false;
+      } else {
+        props.login(omit('errors', state));
+      }
     },
     [state],
   );
 
   useEffect(() => {
+    props.reset();
     return () => {
       props.reset();
     };
