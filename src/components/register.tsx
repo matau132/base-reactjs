@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { Button, Col, Container, Form } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { NavLink, RouteComponentProps, useHistory } from 'react-router-dom';
@@ -26,7 +26,7 @@ const RegisterPage: React.FC<IRegisterProps> = (props) => {
   const [validated, setValidated] = useState(false);
 
   //get props
-  const { updating, updateSuccess, showModel } = props;
+  const { updating, updateSuccess, showModel, entity } = props;
   const history = useHistory();
 
   const hasError = (key: string) => {
@@ -38,19 +38,13 @@ const RegisterPage: React.FC<IRegisterProps> = (props) => {
   }, [props]);
 
   //if register success then redirect to login page
-  const handleOk = useCallback(
-    (responseRegister) => {
-      if (updateSuccess) {
-        localStorage.setItem(
-          'account',
-          JSON.stringify(omit('confirmPassword', responseRegister.action.payload.data)),
-        );
-        history.push('/login');
-      }
-      // close();
-    },
-    [close, updateSuccess],
-  );
+  const handleOk = useCallback(() => {
+    if (updateSuccess) {
+      close();
+      localStorage.setItem('account', JSON.stringify(entity));
+      history.push('/login');
+    }
+  }, [close, updateSuccess]);
 
   const changeHandler = useCallback(
     (event: IndexedObject) => {
@@ -61,7 +55,7 @@ const RegisterPage: React.FC<IRegisterProps> = (props) => {
 
   //submit register form event
   const handleSubmit = useCallback(
-    async (event: IndexedObject) => {
+    (event: IndexedObject) => {
       event.preventDefault();
       setValidated(true);
       //VALIDATE
@@ -99,15 +93,18 @@ const RegisterPage: React.FC<IRegisterProps> = (props) => {
         return false;
       } else {
         const entity = {
-          ...omit('errors', state),
+          ...omit('errors', omit('confirmPassword', state)),
           login: state.email,
         } as IRegisterModel;
-        const responseRegister = await props.createEntity(entity);
-        handleOk(responseRegister);
+        props.createEntity(entity);
       }
     },
     [state],
   );
+
+  useEffect(() => {
+    handleOk();
+  }, [updateSuccess]);
 
   return (
     <div className="Article">
@@ -189,6 +186,7 @@ const mapStateToProps = ({ register }: AppState) => ({
   updating: register.updating,
   updateSuccess: register.updateSuccess,
   showModel: register.showModel,
+  entity: register.entity,
 });
 
 const mapDispatchToProps = { createEntity, reset };

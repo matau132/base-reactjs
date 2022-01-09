@@ -1,15 +1,17 @@
 import { applyMiddleware, combineReducers, compose, createStore, Middleware, Store } from 'redux';
-import thunkMiddleware from 'redux-thunk';
 import promiseMiddleware from 'redux-promise-middleware';
+import thunkMiddleware from 'redux-thunk';
 import errorMiddleware from '../application/config/error-middleware';
 import loggerMiddleware from '../application/config/logger-middleware';
 import authenReducer, { AuthenticationState } from './authenReducer';
-import fliRegisterReducer, { RegisterState } from './registerReducer';
 import langReducer, { LangState } from './languageReducer';
+import fliRegisterReducer, { RegisterState } from './registerReducer';
+import fliUpdateReducer, { UpdateState } from './updateReducer';
 
 export type AppState = {
   authentication: AuthenticationState;
   register: RegisterState;
+  update: UpdateState;
   language: LangState;
 };
 
@@ -20,6 +22,7 @@ const composedMiddlewares = (middlewares: Middleware[]) =>
 const rootReducer = combineReducers<AppState>({
   authentication: authenReducer,
   register: fliRegisterReducer,
+  update: fliUpdateReducer,
   language: langReducer,
 });
 

@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Button, Col, Container, Form } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { NavLink, RouteComponentProps, useHistory } from 'react-router-dom';
 import { AppState } from '../reducer';
-import { IndexedObject } from '../utils/type';
-import { login } from '../reducer/authenReducer';
+import { login, reset } from '../reducer/authenReducer';
 import { omit } from '../utils/object';
+import { IndexedObject } from '../utils/type';
 
 export interface ILoginProps
   extends StateProps,
@@ -14,35 +14,39 @@ export interface ILoginProps
     RouteComponentProps<IndexedObject> {}
 
 const LoginPage: React.FC<ILoginProps> = (props) => {
-  const [validated, setValidated] = useState(false);
   const [state, setState] = useState({
     login: '',
     password: '',
     errors: [] as string[],
   });
+  const [validated, setValidated] = useState(false);
   const history = useHistory();
 
-  const { loading, loginSuccess, account } = props;
+  const { loading, loginSuccess, loginError } = props;
 
-  const changeHandler = (e: IndexedObject) => {
-    setState({ ...state, [e.target.name]: e.target.value });
-  };
-
-  const handleOk = useCallback(() => {
-    if (loginSuccess) {
-      history.push('/home');
-    }
-  }, [loginSuccess]);
+  const changeHandler = useCallback(
+    (e: IndexedObject) => {
+      setState({ ...state, [e.target.name]: e.target.value });
+    },
+    [state],
+  );
 
   //handle submit form
-  const handleSubmit = async (event: IndexedObject) => {
-    event.preventDefault();
-    event.stopPropagation();
-    setValidated(true);
+  const handleSubmit = useCallback(
+    (event: IndexedObject) => {
+      event.preventDefault();
+      setValidated(true);
 
-    await props.login(omit('errors', state));
-    handleOk();
-  };
+      props.login(omit('errors', state));
+    },
+    [state],
+  );
+
+  useEffect(() => {
+    return () => {
+      props.reset();
+    };
+  }, []);
 
   return (
     <div className="Article">
@@ -78,7 +82,8 @@ const LoginPage: React.FC<ILoginProps> = (props) => {
                 Please provide your name.
               </Form.Control.Feedback>
             </Form.Group>
-            <Button type="submit" className="mt-5">
+            {loginError && <p className="text-danger mb-0">Invalid username or password</p>}
+            <Button type="submit" className="mt-3">
               Login
             </Button>
             <div className="mt-4">
@@ -94,11 +99,13 @@ const LoginPage: React.FC<ILoginProps> = (props) => {
 const mapStateToProps = ({ authentication }: AppState) => ({
   loading: authentication.loading,
   loginSuccess: authentication.loginSuccess,
+  loginError: authentication.loginError,
   account: authentication.account,
 });
 
 const mapDispatchToProps = {
   login,
+  reset,
 };
 
 type StateProps = ReturnType<typeof mapStateToProps>;

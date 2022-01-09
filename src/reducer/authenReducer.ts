@@ -13,6 +13,7 @@ export const ACTION_TYPES = {
   LOGOUT: 'authentication/LOGOUT',
   CLEAR_AUTH: 'authentication/CLEAR_AUTH',
   ERROR_MESSAGE: 'authentication/ERROR_MESSAGE',
+  RESET: 'authentication/RESET',
 };
 
 const initialState = {
@@ -105,6 +106,13 @@ export default (
         showModalLogin: true,
         isAuthenticated: false,
       };
+    case ACTION_TYPES.RESET:
+      return {
+        ...state,
+        errorMessage: null,
+        showModalLogin: false,
+        loginError: false,
+      };
     default:
       return state;
   }
@@ -141,8 +149,12 @@ export const login: ICrudPutAction<ILogin> = (entity) => async (dispatch: any) =
             payload: 'Invalid Account',
           });
         }
+      } else {
+        reject({
+          payload: 'Invalid Account',
+        });
       }
-    }, 300);
+    }, 1000);
   });
 
   try {
@@ -174,3 +186,7 @@ export const clearAuthentication = (message: string) => (dispatch: any) => {
     type: ACTION_TYPES.CLEAR_AUTH,
   });
 };
+
+export const reset = () => ({
+  type: ACTION_TYPES.RESET,
+});

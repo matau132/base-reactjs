@@ -1,14 +1,19 @@
 import * as React from 'react';
+import { useCallback } from 'react';
 import { Container, Nav, Navbar } from 'react-bootstrap';
-import { useSelector } from 'react-redux';
+import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
-import { authSelector } from '../../application/selector/authSelector';
-import { IndexedObject } from '../../utils/type';
+import { AppState } from '../../reducer';
+import { logout } from '../../reducer/authenReducer';
 
-const Header: React.FC<IndexedObject> = () => {
-  const { isAuthenticated, account } = useSelector(authSelector.authentication);
+export interface IHeaderProps extends StateProps, DispatchProps {}
 
-  console.log(account);
+const Header: React.FC<IHeaderProps> = (props) => {
+  const { isAuthenticated, account } = props;
+
+  const handleLogout = useCallback(() => {
+    props.logout();
+  }, [props]);
 
   return (
     <>
@@ -17,7 +22,7 @@ const Header: React.FC<IndexedObject> = () => {
           <NavLink to="/home" exact className="navbar-brand">
             Home
           </NavLink>
-          <Nav className="me-auto">
+          <Nav>
             {!isAuthenticated && (
               <>
                 <NavLink to="/login" exact className="nav-link">
@@ -29,9 +34,14 @@ const Header: React.FC<IndexedObject> = () => {
               </>
             )}
             {isAuthenticated && (
-              <NavLink to="/user" className="nav-link">
-                {account ? account.login : null}
-              </NavLink>
+              <>
+                <NavLink to="/user" className="nav-link">
+                  {account ? account.login : null}
+                </NavLink>
+                <button className="btn text-white" onClick={handleLogout}>
+                  Logout
+                </button>
+              </>
             )}
           </Nav>
         </Container>
@@ -40,4 +50,14 @@ const Header: React.FC<IndexedObject> = () => {
   );
 };
 
-export default Header;
+const mapStateToProps = ({ authentication }: AppState) => ({
+  isAuthenticated: authentication.isAuthenticated,
+  account: authentication.account,
+});
+
+const mapDispatchToProps = { logout };
+
+type StateProps = ReturnType<typeof mapStateToProps>;
+type DispatchProps = typeof mapDispatchToProps;
+
+export default connect(mapStateToProps, mapDispatchToProps)(Header);
